@@ -1,37 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { MessageSquare, Clock, Share2 } from 'lucide-react';
-
-const sampleResponses = [
-  "Based on your query, here's what I found...",
-  "Let me analyze that for you...",
-  "Here's what you need to know...",
-  "According to my analysis..."
-];
+import { MessageSquare, Clock, Share2, ExternalLink } from 'lucide-react';
+import { searchQuery } from '../services/api';
+import { formatAnswer } from '../utils/formatters';
 
 export default function SearchPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState(null);
   const [isGenerating, setIsGenerating] = useState(true);
   const [recentQueries, setRecentQueries] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Check if query exists in location state
-    if (!location.state?.query) {
-      navigate('/');
-      return;
-    }
+    const fetchSearchResults = async () => {
+      if (!location.state?.query) {
+        navigate('/');
+        return;
+      }
 
-    const timer = setTimeout(() => {
-      setResponse(sampleResponses[Math.floor(Math.random() * sampleResponses.length)]);
-      setIsGenerating(false);
-      setRecentQueries(prev => [location.state.query, ...prev.slice(0, 2)]);
-    }, 1500);
+      try {
+        setIsGenerating(true);
+        const data = await searchQuery(location.state.query);
+        
+        if (data.success) {
+          setResponse(data.data);
+          setRecentQueries(prev => [location.state.query, ...prev.slice(0, 2)]);
+        } else {
+          setError('Failed to get search results');
+        }
+      } catch (err) {
+        setError('Failed to connect to search service');
+      } finally {
+        setIsGenerating(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchSearchResults();
   }, [location.state, navigate]);
 
+  // Ensure we have query before rendering
   if (!location.state?.query) {
     return null;
   }
@@ -89,33 +97,59 @@ export default function SearchPage() {
               <div className="h-4 bg-zinc-800 rounded w-1/2"></div>
               <div className="h-4 bg-zinc-800 rounded w-5/6"></div>
             </div>
-          ) : (
+          ) : error ? (
+            <div className="text-red-500 p-4 bg-red-500/10 rounded-lg">
+              {error}
+            </div>
+          ) : response ? (
             <div className="space-y-6">
+              {/* Answer */}
               <div className="prose prose-invert">
-                <p className="text-zinc-300 leading-relaxed">{response}</p>
+                <p className="text-xl text-white leading-relaxed">
+                  {formatAnswer(response.answer)}
+                </p>
               </div>
 
-              {/* Follow-up Questions */}
+              {/* Search Results */}
+              <div className="mt-8 space-y-4">
+                <h3 className="text-white font-medium mb-4">Sources</h3>
+                {response.searchResults && response.searchResults.map((result, index) => (
+              <a 
+              key={index}
+             href={result.url}
+               target="_blank"
+              rel="noopener noreferrer"
+               className="block p-4 bg-zinc-900 rounded-lg border border-zinc-800 hover:border-zinc-700 transition-colors"
+                  >
+              <div className="flex items-center justify-between">
+              <h4 className="text-purple-400 font-medium mb-2">{result.name}</h4>
+               <ExternalLink className="w-4 h-4 text-zinc-400" />
+                </div>
+            <p className="text-zinc-300 text-sm">{result.snippet}</p>
+             </a>
+               ))}
+
+              </div>
+
+              {/* Related Questions */}
               <div className="mt-8">
-                <h3 className="text-white font-medium mb-4">Follow-up Questions</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {[
-                    "Tell me more about this",
-                    "What are the key points?",
-                    "Can you provide examples?",
-                    "How does this work?"
-                  ].map((q, i) => (
+                <h3 className="text-white font-medium mb-4">Related Questions</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {response.relatedQuestions && response.relatedQuestions.map((question, i) => (
                     <button
                       key={i}
+                      onClick={() => {
+                        navigate('/search', { state: { query: question } });
+                      }}
                       className="p-3 bg-zinc-900 rounded-lg border border-zinc-800 text-left text-zinc-300 hover:border-zinc-700 transition-colors"
                     >
-                      {q}
+                      {question}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
