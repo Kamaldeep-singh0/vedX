@@ -12,32 +12,41 @@ export default function SearchPage() {
   const [recentQueries, setRecentQueries] = useState([]);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchSearchResults = async () => {
-      if (!location.state?.query) {
-        navigate('/');
-        return;
-      }
-
-      try {
-        setIsGenerating(true);
-        const data = await searchQuery(location.state.query);
-        
-        if (data.success) {
-          setResponse(data.data);
-          setRecentQueries(prev => [location.state.query, ...prev.slice(0, 2)]);
-        } else {
-          setError('Failed to get search results');
+  
+  
+    useEffect(() => {
+      const fetchSearchResults = async () => {
+        if (!location.state?.query) {
+          navigate('/');
+          return;
         }
-      } catch (err) {
-        setError('Failed to connect to search service');
-      } finally {
-        setIsGenerating(false);
-      }
-    };
-
-    fetchSearchResults();
-  }, [location.state, navigate]);
+  
+        try {
+          setIsGenerating(true);
+          const data = await searchQuery(location.state.query);
+  
+          if (data.success) {
+            setResponse(data.data);
+           
+            setRecentQueries(prev => {
+              const query = location.state.query;
+              
+              const filteredQueries = prev.filter(q => q !== query);
+              
+              return [query, ...filteredQueries].slice(0, 3);
+            });
+          } else {
+            setError('Failed to get search results');
+          }
+        } catch (err) {
+          setError('Failed to connect to search service');
+        } finally {
+          setIsGenerating(false);
+        }
+      };
+  
+      fetchSearchResults();
+    }, [location.state, navigate]);
 
   // Ensure we have query before rendering
   if (!location.state?.query) {
@@ -62,12 +71,20 @@ export default function SearchPage() {
             <MessageSquare className="w-4 h-4" />
             <span>Recent Searches</span>
           </div>
-          {recentQueries.map((q, index) => (
-            <div key={index} className="flex items-center gap-2 p-2 hover:bg-zinc-900 rounded-lg text-zinc-400 cursor-pointer">
-              <Clock className="w-4 h-4" />
-              <span>{q}</span>
-            </div>
-          ))}
+          <div>
+            
+      <div className="recent-searches">
+        {recentQueries.map((q, index) => (
+          <div 
+            key={`${q}-${index}`} 
+            className="flex items-center gap-2 p-2 hover:bg-zinc-900 rounded-lg text-zinc-400 cursor-pointer"
+          >
+            <Clock className="w-4 h-4" />
+            <span>{q}</span>
+          </div>
+        ))}
+      </div>
+        </div>
         </div>
       </div>
 

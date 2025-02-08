@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Search = require('../models/search');
-const { searchWithSerper, generateAnswer } = require('../utils/searchUtils');
+const { searchWithSerper, generateAnswer,generateRelatedQuestions } = require('../utils/searchUtils');
 
 router.post('/query', async (req, res) => {
   try {
@@ -13,12 +13,9 @@ router.post('/query', async (req, res) => {
     // Generate answer using the search results
     const answer = await generateAnswer(query, searchResults);
     
-    // Generate related questions (simplified version)
-    const relatedQuestions = [
-      `What are the key differences between ${query}?`,
-      `How does ${query} impact daily life?`,
-      `What are the latest developments in ${query}?`
-    ];
+    // Generate related questions
+    const relatedQuestions = await generateRelatedQuestions(query, searchResults, answer);
+    
     
     // Save search to database
     const search = new Search({
