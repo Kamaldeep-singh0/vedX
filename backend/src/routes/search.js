@@ -15,9 +15,29 @@ router.post('/query', async (req, res) => {
     
     // Generate related questions (simplified version)
     const relatedQuestions = [
-      `What are the key differences between ${query}?`,
-      `How does ${query} impact daily life?`,
-      `What are the latest developments in ${query}?`
+    `What are the key differences between ${query}?`,
+    `How does ${query} impact daily life?`,
+    `What are the latest developments in ${query}?`,
+    `What is the history behind ${query}?`,
+    `What are some real-world applications of ${query}?`,
+    `How does ${query} compare to similar concepts?`,
+    `What are the pros and cons of ${query}?`,
+    `What future trends are expected in ${query}?`,
+    `What are the most common misconceptions about ${query}?`,
+    `How do experts in the field view ${query}?`,
+    `What role does ${query} play in modern technology?`,
+    `How can ${query} be used in different industries?`,
+    `What are some famous case studies related to ${query}?`,
+    `What ethical concerns are associated with ${query}?`,
+    `How has ${query} evolved over time?`,
+    `What are the fundamental principles behind ${query}?`,
+    `What skills are required to master ${query}?`,
+    `What are the best resources for learning about ${query}?`,
+    `What are the economic impacts of ${query}?`,
+    `What scientific research supports ${query}?`,
+    `How does ${query} relate to sustainability and the environment?`,
+    `What are the most debated topics regarding ${query}?`,
+    `How do different cultures view ${query}?`
     ];
     
     // Save search to database
