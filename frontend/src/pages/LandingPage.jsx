@@ -60,6 +60,13 @@ export default function LandingPage() {
           ))}
         </div>
       </div>
+      <div className="absolute bottom-4 right-4">
+        <div className="animate-pulse">
+          <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent font-medium">
+            Developed by HackOps
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
