@@ -15,7 +15,7 @@ VedX is an AI-powered chatbot application designed to deliver *lightning-fast, *
 ✅ AI-powered chatbot with real-time responses\
 ✅ Fast and accurate results\
 ✅ Sleek & modern UI with Tailwind CSS\
-✅ Easily extendable for:
+✅ Easily extendable (future) for:
 
 - 🚕 Ride-booking (Ola, Uber integration)
 - 🛒 Grocery ordering (Amazon, Blinkit, Flipkart API support)
